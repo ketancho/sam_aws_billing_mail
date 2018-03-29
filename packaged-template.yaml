@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Send AWS billing information.
+Globals:
+  Function:
+    Environment:
+      Variables:
+        MAIL_FROM: kei.knzw@gmail.com
+        MAIL_TO: kei.knzw@gmail.com
+Resources:
+  BillingIamRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+        Version: '2012-10-17'
+      Policies:
+      - PolicyDocument:
+          Statement:
+          - Action: cloudwatch:*
+            Effect: Allow
+            Resource: '*'
+          - Action: ses:*
+            Effect: Allow
+            Resource: '*'
+          Version: '2012-10-17'
+        PolicyName: billing_mail_for_lambda
+    Type: AWS::IAM::Role
+  SamSampleLambda:
+    Properties:
+      CodeUri: s3://billing-mail/2d94d373c5ac83d6d68ac62aeda32dd0
+      Events:
+        Timer:
+          Properties:
+            Schedule: cron(0 0 * * ? *)
+          Type: Schedule
+      Handler: billing_mail.lambda_handler
+      Role:
+        Fn::GetAtt:
+        - BillingIamRole
+        - Arn
+      Runtime: python3.6
+      Timeout: 30
+    Type: AWS::Serverless::Function
+Transform: AWS::Serverless-2016-10-31
