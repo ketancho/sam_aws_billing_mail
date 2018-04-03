@@ -4,8 +4,8 @@ Globals:
   Function:
     Environment:
       Variables:
-        MAIL_FROM: kei.knzw@gmail.com
-        MAIL_TO: kei.knzw@gmail.com
+        MAIL_FROM: '***@***'
+        MAIL_TO: '***@***'
 Resources:
   BillingIamRole:
     Properties:
@@ -30,7 +30,7 @@ Resources:
     Type: AWS::IAM::Role
   SamSampleLambda:
     Properties:
-      CodeUri: s3://billing-mail/2d94d373c5ac83d6d68ac62aeda32dd0
+      CodeUri: s3://billing-mail/3eba55cd54e2250db68f8d27545fe756
       Events:
         Timer:
           Properties:

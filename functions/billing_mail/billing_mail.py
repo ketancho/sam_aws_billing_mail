@@ -5,15 +5,28 @@ import datetime
 MAIL_FROM = os.environ['MAIL_FROM']
 MAIL_TO   = os.environ['MAIL_TO']
 
+cloud_watch_client = boto3.client('cloudwatch', region_name='us-east-1')
+ses_client = boto3.client('ses', region_name='us-east-1')
+
 def lambda_handler(event, context):
+
+    if not is_registerd_email_address():
+        register_email_address()
+        return
 
     billing = getBilling()
     send_email(billing)
-
     return
 
+def is_registerd_email_address():
+    return len(ses_client.list_verified_email_addresses()["VerifiedEmailAddresses"]) == 1
+
+def register_email_address():
+    return ses_client.verify_email_address(
+        EmailAddress=MAIL_FROM
+    )
+
 def send_email(billing):
-    ses_client = boto3.client('ses', region_name='us-east-1')
 
     return ses_client.send_email(
         Source=MAIL_FROM,
@@ -35,7 +48,6 @@ def send_email(billing):
     )
 
 def getBilling():
-    cloud_watch_client = boto3.client('cloudwatch', region_name='us-east-1')
     start_time = datetime.datetime.today() - datetime.timedelta(days=1)
     end_time   = datetime.datetime.today()
 
